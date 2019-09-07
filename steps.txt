@@ -1,0 +1,11 @@
+cd C:\Linkedin\venv\Scripts
+activate
+cd ..
+cd ..
+python missing_contact.py
+
+missing_contact.py 
+
+
+
+';'
