@@ -1,4 +1,4 @@
-##JI#!/usr/bin/env python
+#!/usr/bin/env python
 
 ################################################
 #
@@ -35,6 +35,7 @@ exec_log = {}
 driver = None
 user_data_list = []
 today_exec_list = []
+sales_user = False
 
 
 class End2EndConReq:
@@ -59,15 +60,52 @@ class End2EndConReq:
     def clean_data_buffer():
         """ Clean object
         """
-        global today_exec_list, user_data_list
+        global today_exec_list, user_data_list, sales_user
         today_exec_list = []
         user_data_list = []
+        sales_user = False
+
+    @staticmethod
+    def get_decrypted_url():
+        """ Get decrypted URL
+        """
+        global driver, exec_log, sales_user
+        print("Inside decryption logic")
+        driver = webdriver.Chrome(executable_path=config.chrome_driver_path)
+        for usr in range(config.total_li_user):
+            usr_d = eval("config.li_username_" + str(usr + 1))
+            pwd_d = eval("config.li_password_" + str(usr + 1))
+            if not usr_d:
+                continue
+            # Sales Navigator Account
+            if str(usr_d) != "srujan@diagonalmatrix.com":
+                # Take this user to decrypt URL
+                End2EndConReq.li_login(usr_d, pwd_d)
+                print("Logged in with user to decrypt url = ", usr_d)
+                status = End2EndConReq.get_input_data("srujan@diagonalmatrix.com")
+                if status:
+                    # Get execution data set for today
+                    End2EndConReq.today_execution_contact()
+                    # Input data list updated with decrypted URL
+                    End2EndConReq.get_mutual_contact()
+                    # Quite session with dummy user used to decrypt the URL
+                    driver.quit()
+                    sales_user = False
+                    return True
+                else:
+                    # print("No input data found for sales user so skipping...")
+                    driver.quit()
+                    sales_user = False
+                    return False
+        driver.quit()
+        sales_user = False
+        return False
 
     @staticmethod
     def send_conn_req():
         """ Send Connection Request
         """
-        global driver, exec_log
+        global driver, exec_log, sales_user
 
         End2EndConReq.init_logger()
 
@@ -76,14 +114,19 @@ class End2EndConReq:
         print("Start Time = ", str(exec_log["start_time"]))
 
         for usr in range(config.total_li_user):
-            driver = webdriver.Chrome(executable_path=config.chrome_driver_path)
             usr_name = eval("config.li_username_" + str(usr + 1))
             usr_pwd = eval("config.li_password_" + str(usr + 1))
             if not usr_name:
                 continue
+            # Sales Navigator Account
+            if str(usr_name) == "srujan@diagonalmatrix.com":
+                sales_user = True
+                status = End2EndConReq.get_decrypted_url()
+            else:
+                status = End2EndConReq.get_input_data(usr_name)
             print("Processing for User : ", usr_name)
+            driver = webdriver.Chrome(executable_path=config.chrome_driver_path)
             End2EndConReq.li_login(usr_name, usr_pwd)
-            status = End2EndConReq.get_input_data(usr_name)
             if status:
                 End2EndConReq.today_execution_contact()
                 time.sleep(5)
@@ -146,6 +189,7 @@ class End2EndConReq:
                             print("Line is blank...")
                     except Exception as e:
                         pass
+            print("Data loaded from CSV = ", user_data_list)
             return True
         except Exception as e:
             return False
@@ -177,12 +221,15 @@ class End2EndConReq:
     def get_mutual_contact():
         """ Get Mutual Contacts
         """
-        global exec_log
+        global exec_log, today_exec_list
         for cnt in today_exec_list:
             try:
                 print("Processing URL = {0}".format(cnt["li_url"]))
                 driver.get(cnt["li_url"])
                 time.sleep(5)
+                if sales_user:
+                    cnt["li_url"] = driver.current_url
+                    continue
                 End2EndConReq.total_results(cnt)
             except:
                 exec_log["failure_cnt"] += 1
@@ -257,7 +304,7 @@ class End2EndConReq:
         if degree == "2nd":
             try:
                 msg = cnt['2nd_msg']
-                msg = msg.replace("<runtime_firstName>", str(str(name).split()[0]))
+                msg = msg.replace("<runtime_firstName>", str(str(name).split()[0]).strip().rstrip())
                 msg = msg.replace("<runtime_commoncontacts_msg>", str(mutual))
                 try:
                     msg = msg.replace("<var1>", str(cnt['var_1']))
@@ -279,97 +326,81 @@ class End2EndConReq:
                     msg = msg.replace("<var5>", str(cnt['var_5']))
                 except:
                     pass
-
-                try:
-                    print("\n\nconnecting to 2nd degree contact with msg = ", msg)
-                    time.sleep(2)
-                    driver.execute_script('document.getElementsByClassName("artdeco-button__text")[2].click();')
-                    elm = WebDriverWait(driver, 20).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR,
-                                                        "button.artdeco-button--3:nth-child(1)"))
-                        )
-                    elm.click()
-
-                    time.sleep(2)
-                    elm = WebDriverWait(driver, 15).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR,
-                                                        "#custom-message"))
-                    )
-                    elm.send_keys(str(msg))
-
-                    time.sleep(2)
-                    elm = driver.find_elements_by_class_name("artdeco-button__text")
-                    for el in elm:
-                        if "Send invitation" in el.text:
-                            el.click()
-                            break
-                    time.sleep(5)
-                    # elm = WebDriverWait(driver, 50).until(
-                    #    EC.presence_of_element_located((By.CSS_SELECTOR,
-                    #                                    "button.artdeco-button:nth-child(2)"))
-                    # )
-                    # elm.click()
-                    print("\nConnection request send successfully....\n")
-                    exec_log["2nd_sent"] += 1
-                except Exception as e:
-                    # traceback.print_exc()
-                    # print("\nConnection request already sent to contact = ", name)
-                    # exec_log["failure_cnt"] += 1
-                    pass
             except Exception as e:
-                print(e)
+                print("Failed to prepare connection message...")
+
+            try:
+                print("\n\nconnecting to 2nd degree contact with msg = ", msg)
+                time.sleep(10)
+                driver.execute_script('document.getElementsByClassName("artdeco-button__text")[2].click();')
+                elm = WebDriverWait(driver, 20).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR,
+                                                    "button.artdeco-button--3:nth-child(1)"))
+                )
+                elm.click()
+
+                time.sleep(10)
+                elm = WebDriverWait(driver, 15).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR,
+                                                    "#custom-message"))
+                )
+                elm.send_keys(str(msg))
+
+                time.sleep(10)
+                elm = driver.find_elements_by_class_name("artdeco-button__text")
+                for el in elm:
+                    if "Send invitation" in el.text:
+                        el.click()
+                        break
+                time.sleep(10)
+                print("\nConnection request send successfully....\n")
+                exec_log["2nd_sent"] += 1
+            except Exception as e:
+                traceback.print_exc()
+                print("\nConnection request already sent to contact = ", name)
                 exec_log["failure_cnt"] += 1
 
         if degree == "3rd":
             try:
                 msg = cnt['3rd_msg']
-                msg = msg.replace("<runtime_firstName>", str(str(name).split()[0]))
-                try:
-                    print("\nconnecting to 3rd degree contact with msg = ", msg)
-                    time.sleep(2)
-                    name = driver.find_elements_by_class_name('artdeco-button__text')
-                    for elm in name:
-                        if "More" in elm.text:
-                            elm.click()
-
-                    # Click on connect button
-                    time.sleep(2)
-                    driver.find_element_by_xpath("//*[@type='connect-icon']").click()
-
-                    time.sleep(2)
-                    elm = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR,
-                                                        "button.artdeco-button--3:nth-child(1)"))
-                    )
-                    elm.click()
-
-                    time.sleep(2)
-                    elm = WebDriverWait(driver, 15).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR,
-                                                        "#custom-message"))
-                    )
-                    elm.send_keys(str(msg))
-
-                    time.sleep(2)
-                    elm = driver.find_elements_by_class_name("artdeco-button__text")
-                    for el in elm:
-                        if "Send invitation" in el.text:
-                            el.click()
-                            break
-                    time.sleep(5)
-                    # elm = WebDriverWait(driver, 50).until(
-                    #     EC.presence_of_element_located((By.CSS_SELECTOR,
-                    #                                     "button.artdeco-button:nth-child(2)"))
-                    # )
-                    # elm.click()
-                    print("\nConnection request send successfully....")
-                    exec_log['3rd_sent'] += 1
-                except Exception as e:
-                    # print("\nConnection request already sent to contact = ", name)
-                    # exec_log["failure_cnt"] += 1
-                    pass
+                msg = msg.replace("<runtime_firstName>", str(name).split(" ")[0].strip().rstrip())
             except Exception as e:
-                print(e)
+                print("Failed to prepare connection message...")
+
+            try:
+                print("\nconnecting to 3rd degree contact with msg = ", msg)
+                time.sleep(10)
+                name = driver.find_elements_by_class_name('artdeco-button__text')
+                for elm in name:
+                    if "More" in elm.text:
+                        elm.click()
+
+                # Click on connect button
+                time.sleep(10)
+                driver.find_element_by_xpath("//*[@type='connect-icon']").click()
+
+                time.sleep(10)
+                elm = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR,
+                                        "button.artdeco-button--3:nth-child(1)")))
+                elm.click()
+
+                time.sleep(10)
+                elm = WebDriverWait(driver, 15).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR,
+                                                        "#custom-message")))
+                elm.send_keys(str(msg))
+                time.sleep(10)
+                elm = driver.find_elements_by_class_name("artdeco-button__text")
+                for el in elm:
+                    if "Send" in el.text:
+                        el.click()
+                        break
+                time.sleep(10)
+                print("\nConnection request send successfully....")
+                exec_log['3rd_sent'] += 1
+            except Exception as e:
+                print("\nConnection request already sent to contact = ", name)
                 exec_log["failure_cnt"] += 1
 
 
@@ -380,4 +411,3 @@ if __name__ == '__main__':
 
     # Dump info into log report
     logger_file.dump_log(exec_log)
-
