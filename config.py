@@ -1,8 +1,12 @@
-# .csv filename
-csv_filepath = "C:\Linkedin\contacts.csv"
-csv_w_filepath = "C:\Linkedin\output_contacts.csv"
-chrome_driver_path = "C:\Linkedin\chromedriver"
+# Chrome Driver PATH
+chrome_driver_path = "/home/mahesh/Public/End2End_ConnReq/chromedriver"
 
-# LinkedIn credentials
-li_username ="swetha4msc@gmail.com"
-li_password = "B3ex4-nO"
+total_li_user = 2
+
+# User 1
+li_username_1 = "izaq786@gmail.com"
+li_password_1 = "dishaq3103"
+
+# User 2
+li_username_2 = "velanimahesh007@gmail.com"
+li_password_2 = "NevergiveUp@007"
