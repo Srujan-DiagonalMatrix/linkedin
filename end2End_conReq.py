@@ -70,7 +70,7 @@ class End2EndConReq:
         """ Get decrypted URL
         """
         global driver, exec_log, sales_user
-        print("Inside decryption logic")
+        print("Inside Decryption Logic")
         driver = webdriver.Chrome(executable_path=config.chrome_driver_path)
         for usr in range(config.total_li_user):
             usr_d = eval("config.li_username_" + str(usr + 1))
@@ -78,11 +78,11 @@ class End2EndConReq:
             if not usr_d:
                 continue
             # Sales Navigator Account
-            if str(usr_d) != "srujan@diagonalmatrix.com":
+            if str(usr_d) != "srujan@DiagonalMatrix.com":
                 # Take this user to decrypt URL
                 End2EndConReq.li_login(usr_d, pwd_d)
                 print("Logged in with user to decrypt url = ", usr_d)
-                status = End2EndConReq.get_input_data("srujan@diagonalmatrix.com")
+                status = End2EndConReq.get_input_data("srujan@DiagonalMatrix.com")
                 if status:
                     # Get execution data set for today
                     End2EndConReq.today_execution_contact()
@@ -119,7 +119,7 @@ class End2EndConReq:
             if not usr_name:
                 continue
             # Sales Navigator Account
-            if str(usr_name) == "srujan@diagonalmatrix.com":
+            if str(usr_name) == "srujan@DiagonalMatrix.com":
                 sales_user = True
                 status = End2EndConReq.get_decrypted_url()
             else:
@@ -128,7 +128,10 @@ class End2EndConReq:
             driver = webdriver.Chrome(executable_path=config.chrome_driver_path)
             End2EndConReq.li_login(usr_name, usr_pwd)
             if status:
-                End2EndConReq.today_execution_contact()
+                if str(usr_name) == "srujan@DiagonalMatrix.com":
+                    pass
+                else:
+                    End2EndConReq.today_execution_contact()
                 time.sleep(5)
                 End2EndConReq.get_mutual_contact()
                 driver.quit()
@@ -161,12 +164,10 @@ class End2EndConReq:
         """
         global user_data_list
         csv_file = "I_O/" + usr + ".csv"
-
         try:
             with open(csv_file, 'r') as f:
                 try:
-                    reader = csv.reader(f, delimiter=';')
-                    print(str(sys.argv[1]))
+                    reader = csv.reader(f, delimiter = ';')
                 except Exception as e:
                     reader = csv.reader(f)
                 header = next(reader)
@@ -225,7 +226,7 @@ class End2EndConReq:
         for cnt in today_exec_list:
             try:
                 print("Processing URL = {0}".format(cnt["li_url"]))
-                driver.get(cnt["li_url"])
+                driver.get(cnt["li_url"].replace(';', ','))
                 time.sleep(5)
                 if sales_user:
                     cnt["li_url"] = driver.current_url
@@ -303,7 +304,7 @@ class End2EndConReq:
 
         if degree == "2nd":
             try:
-                msg = cnt['2nd_msg']
+                msg = cnt['2nd_msg'].replace(';', ',')
                 msg = msg.replace("<runtime_firstName>", str(str(name).split()[0]).strip().rstrip())
                 msg = msg.replace("<runtime_commoncontacts_msg>", str(mutual))
                 try:
@@ -362,7 +363,7 @@ class End2EndConReq:
 
         if degree == "3rd":
             try:
-                msg = cnt['3rd_msg']
+                msg = cnt['3rd_msg'].replace(';', ',')
                 msg = msg.replace("<runtime_firstName>", str(name).split(" ")[0].strip().rstrip())
             except Exception as e:
                 print("Failed to prepare connection message...")
