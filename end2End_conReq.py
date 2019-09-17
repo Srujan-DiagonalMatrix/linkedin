@@ -350,7 +350,7 @@ class End2EndConReq:
                 time.sleep(10)
                 elm = driver.find_elements_by_class_name("artdeco-button__text")
                 for el in elm:
-                    if "Send invitation" in el.text:
+                    if "Send" in el.text:
                         el.click()
                         break
                 time.sleep(10)
@@ -358,7 +358,7 @@ class End2EndConReq:
                 exec_log["2nd_sent"] += 1
             except Exception as e:
                 traceback.print_exc()
-                print("\nConnection request already sent to contact = ", name)
+                print("\nConnection request already sent to contact...")
                 exec_log["failure_cnt"] += 1
 
         if degree == "3rd":
@@ -371,14 +371,27 @@ class End2EndConReq:
             try:
                 print("\nconnecting to 3rd degree contact with msg = ", msg)
                 time.sleep(10)
-                name = driver.find_elements_by_class_name('artdeco-button__text')
-                for elm in name:
-                    if "More" in elm.text:
-                        elm.click()
 
-                # Click on connect button
-                time.sleep(10)
-                driver.find_element_by_xpath("//*[@type='connect-icon']").click()
+                try:
+                    elm = driver.find_elements_by_class_name("artdeco-button__text")
+                    connect_flg = False
+                    for el in elm:
+                        if "connect" in el.text.lower():
+                            connect_flg = True
+                            el.click()
+                    if connect_flg:
+                        pass
+                    else:
+                        raise Exception("Connect button should inside More")
+                except:
+                    name = driver.find_elements_by_class_name('artdeco-button__text')
+                    for elm in name:
+                        if "More" in elm.text:
+                            elm.click()
+
+                    # Click on connect button
+                    time.sleep(10)
+                    driver.find_element_by_xpath("//*[@type='connect-icon']").click()
 
                 time.sleep(10)
                 elm = WebDriverWait(driver, 10).until(
@@ -401,7 +414,7 @@ class End2EndConReq:
                 print("\nConnection request send successfully....")
                 exec_log['3rd_sent'] += 1
             except Exception as e:
-                print("\nConnection request already sent to contact = ", name)
+                print("\nConnection request already sent to contact...")
                 exec_log["failure_cnt"] += 1
 
 
