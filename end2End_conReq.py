@@ -270,7 +270,7 @@ class End2EndConReq:
 
         if degree == "2nd":
             try:
-                element = WebDriverWait(driver,50).until(
+                element = WebDriverWait(driver, 30).until(
                     EC.presence_of_element_located((By.CLASS_NAME,"pv-highlight-entity__secondary-text"))
                 )
                 try:
@@ -282,9 +282,13 @@ class End2EndConReq:
                         mutual_msg = str(msg[0].text).replace(',', ';')
                     End2EndConReq.send_req(usr_name, mutual_msg, degree, cnt)
                 except Exception as e:
-                    exec_log["failure_cnt"] += 1
+                    print("Mutual contacts message is not available....")
+                    End2EndConReq.send_req(usr_name, None, degree, cnt)
+                    # exec_log["failure_cnt"] += 1
             except Exception as e:
-                exec_log["failure_cnt"] += 1
+                print("Mutual contacts message is not available....")
+                End2EndConReq.send_req(usr_name, None, degree, cnt)
+                # exec_log["failure_cnt"] += 1
 
         if degree == "3rd":
             try:
@@ -301,35 +305,42 @@ class End2EndConReq:
         """ Send request with appropriate message
         """
         global exec_log
+        msg = None
 
         if degree == "2nd":
-            try:
-                msg = cnt['2nd_msg'].replace(';', ',')
-                msg = msg.replace("<runtime_firstName>", str(str(name).split()[0]).strip().rstrip())
-                msg = msg.replace("<runtime_commoncontacts_msg>", str(mutual))
+            if mutual:
                 try:
-                    msg = msg.replace("<var1>", str(cnt['var_1']))
-                except:
-                    pass
+                    msg = cnt['2nd_msg'].replace(';', ',')
+                    msg = msg.replace("<runtime_firstName>", str(str(name).split()[0]).strip().rstrip())
+                    msg = msg.replace("<runtime_commoncontacts_msg>", str(mutual))
+                    try:
+                        msg = msg.replace("<var1>", str(cnt['var_1']))
+                    except:
+                        pass
+                    try:
+                        msg = msg.replace("<var2>", str(cnt['var_2']))
+                    except:
+                        pass
+                    try:
+                        msg = msg.replace("<var3>", str(cnt['var_3']))
+                    except:
+                        pass
+                    try:
+                        msg = msg.replace("<var4>", str(cnt['var_4']))
+                    except:
+                        pass
+                    try:
+                        msg = msg.replace("<var5>", str(cnt['var_5']))
+                    except:
+                        pass
+                except Exception as e:
+                    print("Failed to prepare connection message...")
+            else:
                 try:
-                    msg = msg.replace("<var2>", str(cnt['var_2']))
-                except:
-                    pass
-                try:
-                    msg = msg.replace("<var3>", str(cnt['var_3']))
-                except:
-                    pass
-                try:
-                    msg = msg.replace("<var4>", str(cnt['var_4']))
-                except:
-                    pass
-                try:
-                    msg = msg.replace("<var5>", str(cnt['var_5']))
-                except:
-                    pass
-            except Exception as e:
-                print("Failed to prepare connection message...")
-
+                    msg = cnt['3rd_msg'].replace(';', ',')
+                    msg = msg.replace("<runtime_firstName>", str(name).split(" ")[0].strip().rstrip())
+                except Exception as e:
+                    print("Failed to prepare connection message...")
             try:
                 print("\n\nconnecting to 2nd degree contact with msg = ", msg)
                 time.sleep(10)
