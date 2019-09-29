@@ -120,19 +120,19 @@ class End2EndConReq:
             if not usr_name:
                 continue
             # Sales Navigator Account
-            if str(usr_name).lower() == "srujan@diagonalmatrix.com":
-                sales_user = True
-                status = End2EndConReq.get_decrypted_url()
-            else:
-                status = End2EndConReq.get_input_data()
+            #if str(usr_name).lower() == "srujan@diagonalmatrix.com":
+                #sales_user = True
+                #status = End2EndConReq.get_decrypted_url()
+            #else:
+            status = End2EndConReq.get_input_data()
             print("Processing for User : ", usr_name)
             driver = webdriver.Chrome(executable_path=config.chrome_driver_path)
             End2EndConReq.li_login(usr_name, usr_pwd)
             if status:
-                if str(usr_name).lower() == "srujan@diagonalmatrix.com":
-                    pass
-                else:
-                    End2EndConReq.today_execution_contact(usr_name.lower())
+                #if str(usr_name).lower() == "srujan@diagonalmatrix.com":
+                    #pass
+                #else:
+                End2EndConReq.today_execution_contact(usr_name.lower())
                 time.sleep(5)
                 End2EndConReq.get_mutual_contact()
                 driver.quit()
@@ -202,12 +202,12 @@ class End2EndConReq:
         """
         global today_exec_list, exec_log
         user_to_exec_today = 0
-        today = str(strftime("%d-%m-%Y %H:%M:%S", gmtime()).split("-")[0])
-        month = str(strftime("%d-%m-%Y %H:%M:%S", gmtime()).split("-")[1])
+        today = str(strftime("%d/%m/%Y %H:%M:%S", gmtime()).split("/")[0])
+        month = str(strftime("%d/%m/%Y %H:%M:%S", gmtime()).split("/")[1])
 
         for data in user_data_list:
-            usr_set_day = str(data["date"]).split("-")[0]
-            usr_set_month = str(data["date"]).split("-")[1]
+            usr_set_day = str(data["date"]).split("/")[0]
+            usr_set_month = str(data["date"]).split("/")[1]
             if (int(str(month)) == int(str(usr_set_month)) and
                 int(str(today)) == int(str(usr_set_day))):
                 if str(usr) == str(data["usr"].lower()):
