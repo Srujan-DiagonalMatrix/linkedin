@@ -67,42 +67,6 @@ class End2EndConReq:
         sales_user = False
 
     @staticmethod
-    def get_decrypted_url():
-        """ Get decrypted URL
-        """
-        global driver, exec_log, sales_user
-        print("Inside Decryption Logic")
-        driver = webdriver.Chrome(executable_path=config.chrome_driver_path)
-        for usr in range(config.total_li_user):
-            usr_d = eval("config.li_username_" + str(usr + 1))
-            pwd_d = eval("config.li_password_" + str(usr + 1))
-            if not usr_d:
-                continue
-            # Sales Navigator Account
-            if str(usr_d).lower() != "srujan@diagonalmatrix.com":
-                # Take this user to decrypt URL
-                End2EndConReq.li_login(usr_d, pwd_d)
-                print("Logged in with user to decrypt url = ", usr_d)
-                status = End2EndConReq.get_input_data()
-                if status:
-                    # Get execution data set for today
-                    End2EndConReq.today_execution_contact("srujan@diagonalmatrix.com")
-                    # Input data list updated with decrypted URL
-                    End2EndConReq.get_mutual_contact()
-                    # Quite session with dummy user used to decrypt the URL
-                    driver.quit()
-                    sales_user = False
-                    return True
-                else:
-                    # print("No input data found for sales user so skipping...")
-                    driver.quit()
-                    sales_user = False
-                    return False
-        driver.quit()
-        sales_user = False
-        return False
-
-    @staticmethod
     def send_message():
         """ Send Connection Request
         """
@@ -119,19 +83,11 @@ class End2EndConReq:
             usr_pwd = eval("config.li_password_" + str(usr + 1))
             if not usr_name:
                 continue
-            # Sales Navigator Account
-            #if str(usr_name).lower() == "srujan@diagonalmatrix.com":
-                #sales_user = True
-                #status = End2EndConReq.get_decrypted_url()
-            #else:
             status = End2EndConReq.get_input_data()
             print("Processing for User : ", usr_name)
             driver = webdriver.Chrome(executable_path=config.chrome_driver_path)
             End2EndConReq.li_login(usr_name, usr_pwd)
             if status:
-                #if str(usr_name).lower() == "srujan@diagonalmatrix.com":
-                    #pass
-                #else:
                 End2EndConReq.today_execution_contact(usr_name.lower())
                 time.sleep(5)
                 End2EndConReq.get_mutual_contact()
@@ -316,7 +272,7 @@ class End2EndConReq:
                 print("Sending Message = ", msg)
                 txt_box.send_keys(str(msg))
                 time.sleep(5)
-                driver.find_element_by_xpath("//*[@type='submit']").click()
+                #driver.find_element_by_xpath("//*[@type='submit']").click()
                 time.sleep(5)
                 print("Message Send successfully.......")
                 exec_log['1st_sent'] += 1
