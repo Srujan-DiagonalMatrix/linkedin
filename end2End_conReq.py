@@ -243,8 +243,11 @@ class End2EndConReq:
         global exec_log
         try:
             name = driver.find_elements_by_css_selector('li.inline.t-24.t-black.t-normal.break-words')
-            print("Name of person = ", str(name[0].text))
-            name_p = str(name[0].text).replace(',', '')
+            print("Name of person = ", name[0].text)
+            try:
+                name_p = str(name[0].text).replace(',', '')
+            except Exception:
+                name_p = name[0].text.replace(',', '')
         except Exception as e:
             name_p = None
 
@@ -259,6 +262,7 @@ class End2EndConReq:
         if name_p and degree_p:
             End2EndConReq.degree_of_connection(name_p, degree_p, cnt)
         else:
+
             print("Failed to Fetch Name and Degree of Connection...")
             exec_log["failure_cnt"] += 1
 
@@ -311,7 +315,9 @@ class End2EndConReq:
             if mutual:
                 try:
                     msg = cnt['2nd_msg'].replace(';', ',')
-                    msg = msg.replace("<runtime_firstName>", str(str(name).split()[0]).strip().rstrip())
+                    name = name.split()[0]
+                    name = ''.join(e for e in name.encode('utf-8') if e.isalnum())
+                    msg = msg.replace("<runtime_firstName>", name)
                     msg = msg.replace("<runtime_commoncontacts_msg>", str(mutual))
                     try:
                         msg = msg.replace("<var1>", str(cnt['var_1']))
@@ -338,7 +344,9 @@ class End2EndConReq:
             else:
                 try:
                     msg = cnt['3rd_msg'].replace(';', ',')
-                    msg = msg.replace("<runtime_firstName>", str(name).split(" ")[0].strip().rstrip())
+                    name = name.split()[0]
+                    name = ''.join(e for e in name.encode('utf-8') if e.isalnum())
+                    msg = msg.replace("<runtime_firstName>", name)
                 except Exception as e:
                     print("Failed to prepare connection message...")
             try:
@@ -375,7 +383,9 @@ class End2EndConReq:
         if degree == "3rd":
             try:
                 msg = cnt['3rd_msg'].replace(';', ',')
-                msg = msg.replace("<runtime_firstName>", str(name).split(" ")[0].strip().rstrip())
+                name = name.split()[0]
+                name = ''.join(e for e in name.encode('utf-8') if e.isalnum())
+                msg = msg.replace("<runtime_firstName>", name)
             except Exception as e:
                 print("Failed to prepare connection message...")
 
