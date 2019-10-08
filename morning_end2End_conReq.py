@@ -163,7 +163,7 @@ class End2EndConReq:
         """ Get Input user data from CSV
         """
         global user_data_list
-        csv_file = "I_O/night/" + str(usr.lower()) + ".csv"
+        csv_file = "I_O/morning/" + str(usr.lower()) + ".csv"
         try:
             with open(csv_file, 'r') as f:
                 try:
