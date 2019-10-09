@@ -129,7 +129,7 @@ class connect():
         """
         try:
             # Write Heading
-            sheet_name = str(usr.split('@')[0])
+            sheet_name = str(usr)
             sheet = wb.add_sheet(sheet_name)
             sheet.write(0,0,"URL")
             sheet.write(0, 1, "Name")
