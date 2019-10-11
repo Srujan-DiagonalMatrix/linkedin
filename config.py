@@ -1,7 +1,7 @@
 # Chrome Driver PATH
 chrome_driver_path = "/home/elonmusk/Documents/linkedin_run/chromedriver"
 # input_file = "/home/elonmusk/Documents/github/linkedin_run/I_O/message_test_input.csv"
-csv_w_filepath = "/home/elonmusk/Documents/github/linkedin_run/I_O/newContacts"
+csv_w_filepath = "/home/elonmusk/Documents/github/linkedin_run/I_O/newContacts.xls"
 
 total_li_user = 1
 
