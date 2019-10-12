@@ -154,7 +154,9 @@ class End2EndConReq:
         driver.maximize_window()
         time.sleep(2)
         driver.find_element_by_name('session_key').send_keys(usr)
+        time.sleep(3)
         driver.find_element_by_name('session_password').send_keys(pwd)
+        time.sleep(3)
         driver.find_element_by_name('session_password').send_keys(Keys.RETURN);
         time.sleep(5)
 
@@ -163,7 +165,7 @@ class End2EndConReq:
         """ Get Input user data from CSV
         """
         global user_data_list
-        csv_file = "I_O/" + str(usr.lower()) + ".csv"
+        csv_file = "I_O/night/" + str(usr.lower()) + ".csv"
         try:
             with open(csv_file, 'r') as f:
                 try:
@@ -351,7 +353,7 @@ class End2EndConReq:
                     print("Failed to prepare connection message...")
             try:
                 print("\n\nconnecting to 2nd degree contact with msg = ", msg)
-                time.sleep(10)
+                time.sleep(20)
                 driver.execute_script('document.getElementsByClassName("artdeco-button__text")[2].click();')
                 elm = WebDriverWait(driver, 20).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR,
@@ -359,20 +361,20 @@ class End2EndConReq:
                 )
                 elm.click()
 
-                time.sleep(10)
+                time.sleep(20)
                 elm = WebDriverWait(driver, 15).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR,
                                                     "#custom-message"))
                 )
                 elm.send_keys(str(msg))
 
-                time.sleep(10)
+                time.sleep(20)
                 elm = driver.find_elements_by_class_name("artdeco-button__text")
                 for el in elm:
                     if "Send" in el.text:
                         el.click()
                         break
-                time.sleep(10)
+                time.sleep(20)
                 print("\nConnection request send successfully....\n")
                 exec_log["2nd_sent"] += 1
             except Exception as e:
@@ -391,7 +393,7 @@ class End2EndConReq:
 
             try:
                 print("\nconnecting to 3rd degree contact with msg = ", msg)
-                time.sleep(10)
+                time.sleep(15)
 
                 try:
                     elm = driver.find_elements_by_class_name("artdeco-button__text")
@@ -414,24 +416,24 @@ class End2EndConReq:
                     time.sleep(10)
                     driver.find_element_by_xpath("//*[@type='connect-icon']").click()
 
-                time.sleep(10)
+                time.sleep(20)
                 elm = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR,
                                         "button.artdeco-button--3:nth-child(1)")))
                 elm.click()
 
-                time.sleep(10)
+                time.sleep(20)
                 elm = WebDriverWait(driver, 15).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR,
                                                         "#custom-message")))
                 elm.send_keys(str(msg))
-                time.sleep(10)
+                time.sleep(20)
                 elm = driver.find_elements_by_class_name("artdeco-button__text")
                 for el in elm:
                     if "Send" in el.text:
                         el.click()
                         break
-                time.sleep(10)
+                time.sleep(20)
                 print("\nConnection request send successfully....")
                 exec_log['3rd_sent'] += 1
             except Exception as e:
