@@ -36,7 +36,7 @@ class connect():
             connect.li_login(usr_name, usr_pwd)
             connect.open_connection()
             time.sleep(5)
-            connect.get_recent_connected_connection()
+            connect.get_recent_connected_connection(usr)
             time.sleep(5)
             connect.print_user_details(usr)
             connect.dump_data_in_xls(usr, usr_name, wb)
@@ -81,34 +81,46 @@ class connect():
             print("There is no connection Tag found inside My Network")
 
     @staticmethod
-    def get_recent_connected_connection():
+    def get_recent_connected_connection(usr):
         """Get Recently connected contacts detail
         """
+        search_contact = True
         global usr_name_list, usr_occ_list, usr_url_list
-        try:
-            # Get Name
-            names = driver.find_elements_by_css_selector("span.mn-connection-card__name.t-16.t-black.t-bold")
+        while search_contact:
+            try:
+                # Get Name
+                names = driver.find_elements_by_css_selector("span.mn-connection-card__name.t-16.t-black.t-bold")
 
-            for name in names:
-                usr_name_list.append(name.text)
+                for name in names:
+                    if name.text not in usr_name_list:
+                        usr_name_list.append(name.text)
 
-            # Get Occupation
-            occupations = driver.find_elements_by_css_selector \
-                ("span.mn-connection-card__occupation.t-14.t-black--light.t-normal")
-            for occ in occupations:
-                usr_occ_list.append(occ.text)
+                # Get Occupation
+                occupations = driver.find_elements_by_css_selector \
+                    ("span.mn-connection-card__occupation.t-14.t-black--light.t-normal")
+                for occ in occupations:
+                    if occ.text not in usr_occ_list:
+                        usr_occ_list.append(occ.text)
 
-        except Exception as err:
-            print("Name and Occupation details are not found")
+            except Exception as err:
+                print("Name and Occupation details are not found")
 
-        # Get URL details for each user
-        try:
-            div = driver.find_elements_by_class_name('mn-connection-card__details')
-            for elm in div:
-                link = elm.find_element_by_css_selector('a').get_attribute('href')
-                usr_url_list.append(link)
-        except Exception as err:
-            print("user URL's not found......")
+            # Get URL details for each user
+            try:
+                div = driver.find_elements_by_class_name('mn-connection-card__details')
+                for elm in div:
+                    link = elm.find_element_by_css_selector('a').get_attribute('href')
+                    if link not in usr_url_list:
+                        usr_url_list.append(link)
+            except Exception as err:
+                print("user URL's not found......")
+
+            if int(len(usr_url_list)) >= int(eval("config.get_recent_count_" + str(usr + 1))):
+                break
+            else:
+                driver.execute_script("window.scrollTo(0, window.scrollY + 800)")
+                time.sleep(5)
+
 
     @staticmethod
     def print_user_details(usr):
@@ -117,9 +129,12 @@ class connect():
         try:
             cnt = eval("config.get_recent_count_" + str(usr + 1))
             for index in range(int(cnt)):
-                print("----   User Name --------  ", usr_name_list[index])
-                print("----   User Occupation --  ", usr_occ_list[index])
-                print("----   User Url ---------  ", usr_url_list[index])
+                try:
+                    print("----   User Name --------  ", usr_name_list[index])
+                    print("----   User Occupation --  ", usr_occ_list[index])
+                    print("----   User Url ---------  ", usr_url_list[index])
+                except:
+                    pass
         except Exception as err:
             print("Unable to print user information.....")
 
@@ -129,7 +144,7 @@ class connect():
         """
         try:
             # Write Heading
-            #sheet_name = str(usr.split('@')[0])
+
             sheet_name = str(usr)
             sheet = wb.add_sheet(sheet_name)
             sheet.write(0,0,"URL")
@@ -138,9 +153,12 @@ class connect():
 
             cnt = eval("config.get_recent_count_" + str(index + 1))
             for index in range(int(cnt)):
-                sheet.write(index + 1, 0, usr_url_list[index])
-                sheet.write(index + 1, 1, usr_name_list[index])
-                sheet.write(index + 1, 2, usr_occ_list[index])
+                try:
+                    sheet.write(index + 1, 0, usr_url_list[index])
+                    sheet.write(index + 1, 1, usr_name_list[index])
+                    sheet.write(index + 1, 2, usr_occ_list[index])
+                except:
+                    continue
             print("Data written into EXCEL sheet successfully....")
         except Exception as err:
             print("Failed to write data in Excel Sheet for user : ", sheet_name)
