@@ -21,6 +21,7 @@ import sys
 import time
 from time import gmtime, strftime
 import traceback
+import csv
 
 # Custom Modules
 import config
@@ -88,7 +89,6 @@ class End2EndConReq:
                     End2EndConReq.today_execution_contact()
                     # Input data list updated with decrypted URL
                     decrypted = End2EndConReq.get_mutual_contact()
-                    print(decrypted)
                     # Quite session with dummy user used to decrypt the URL
                     driver.quit()
                     sales_user = False
@@ -234,11 +234,40 @@ class End2EndConReq:
                 if sales_user:
                     cnt["li_url"] = driver.current_url
                     continue
-                End2EndConReq.total_results(cnt)
+                with open('/pathtofile/output.csv','wb') as csvFile:
+                    wr = csv.writer(csvFile, dialect='excel')
+                    wr.writerows(cnt)
+                #End2EndConReq.total_results(cnt)
             except:
                 exec_log["failure_cnt"] += 1
                 print("ERROR: Invalid URL : ---------- " + cnt["li_url"])
                 time.sleep(5)
+                
+    @staticmethod
+    def dump_data_in_xls(index, usr, wb):
+        """Dump data in XLS
+        """
+        try:
+            # Write Heading
+
+            sheet_name = str(usr)
+            sheet = wb.add_sheet(sheet_name)
+            sheet.write(0,0,"URL")
+            sheet.write(0, 1, "Name")
+            sheet.write(0, 2, "Company")
+
+            cnt = eval("config.get_recent_count_" + str(index + 1))
+            for index in range(int(cnt)):
+                try:
+                    sheet.write(index + 1, 0, usr_url_list[index])
+                    sheet.write(index + 1, 1, usr_name_list[index])
+                    sheet.write(index + 1, 2, usr_occ_list[index])
+                except:
+                    continue
+            print("Data written into EXCEL sheet successfully....")
+        except Exception as err:
+            print("Failed to write data in Excel Sheet for user : ", sheet_name)
+
 '''
     @staticmethod
     def total_results(cnt):
