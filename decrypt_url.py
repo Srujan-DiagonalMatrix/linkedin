@@ -242,31 +242,6 @@ class End2EndConReq:
                 exec_log["failure_cnt"] += 1
                 print("ERROR: Invalid URL : ---------- " + cnt["li_url"])
                 time.sleep(5)
-                
-    @staticmethod
-    def dump_data_in_xls(index, usr, wb):
-        """Dump data in XLS
-        """
-        try:
-            # Write Heading
-
-            sheet_name = str(usr)
-            sheet = wb.add_sheet(sheet_name)
-            sheet.write(0,0,"URL")
-            sheet.write(0, 1, "Name")
-            sheet.write(0, 2, "Company")
-
-            cnt = eval("config.get_recent_count_" + str(index + 1))
-            for index in range(int(cnt)):
-                try:
-                    sheet.write(index + 1, 0, usr_url_list[index])
-                    sheet.write(index + 1, 1, usr_name_list[index])
-                    sheet.write(index + 1, 2, usr_occ_list[index])
-                except:
-                    continue
-            print("Data written into EXCEL sheet successfully....")
-        except Exception as err:
-            print("Failed to write data in Excel Sheet for user : ", sheet_name)
 
 '''
     @staticmethod
