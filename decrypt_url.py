@@ -89,6 +89,7 @@ class End2EndConReq:
                     End2EndConReq.today_execution_contact()
                     # Input data list updated with decrypted URL
                     decrypted = End2EndConReq.get_mutual_contact()
+                    End2EndConReq.dump_data_in_xls(usr_d)
                     # Quite session with dummy user used to decrypt the URL
                     driver.quit()
                     sales_user = False
@@ -234,14 +235,35 @@ class End2EndConReq:
                 if sales_user:
                     cnt["li_url"] = driver.current_url
                     continue
-                with open('/pathtofile/output.csv','wb') as csvFile:
-                    wr = csv.writer(csvFile, dialect='excel')
-                    wr.writerows(cnt)
                 #End2EndConReq.total_results(cnt)
             except:
                 exec_log["failure_cnt"] += 1
                 print("ERROR: Invalid URL : ---------- " + cnt["li_url"])
+
                 time.sleep(5)
+
+
+    @staticmethod
+    def dump_data_in_xls(usr_d):
+        """Dump data in XLS
+        """
+        try:
+            sheet_name = usr_d
+            
+            wb = Workbook()
+            sheet = wb.add_sheet(sheet_name)
+            sheet.write(0,0,"URL")
+
+            for index in range(len(today_exec_list)):
+                try:
+                    sheet.write(index + 1, 0, today_exec_list[index]["li_url"])
+                except:
+                    continue
+            print("Data written into EXCEL sheet successfully....")
+        except Exception as err:
+            print("Failed to write data in Excel Sheet for user")
+
+        wb.save("Decrypted_Url.xls")
 
 '''
     @staticmethod
