@@ -232,9 +232,10 @@ class End2EndConReq:
             try:
                 print("Processing URL = {0}".format(cnt["li_url"]))
                 driver.get(cnt["li_url"].replace(';', ','))
-                time.sleep(5)
+                time.sleep(10)
                 if sales_user:
                     cnt["li_url"] = driver.current_url
+                    time.sleep(10)
                     continue
                 # End2EndConReq.total_results(cnt)
             except:
