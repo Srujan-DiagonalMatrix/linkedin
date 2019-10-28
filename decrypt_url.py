@@ -22,11 +22,11 @@ import time
 from time import gmtime, strftime
 import traceback
 import csv
+from xlwt import Workbook
 
 # Custom Modules
 import config
 import logger_file
-
 
 if os.path.isfile("ConReqReport.txt"):
     os.remove("ConReqReport.txt")
@@ -88,7 +88,7 @@ class End2EndConReq:
                     # Get execution data set for today
                     End2EndConReq.today_execution_contact()
                     # Input data list updated with decrypted URL
-                    decrypted = End2EndConReq.get_mutual_contact()
+                    End2EndConReq.get_mutual_contact()
                     End2EndConReq.dump_data_in_xls(usr_d)
                     # Quite session with dummy user used to decrypt the URL
                     driver.quit()
@@ -124,28 +124,29 @@ class End2EndConReq:
             if str(usr_name).lower() == "srujan@diagonalmatrix.com":
                 sales_user = True
                 status = End2EndConReq.get_decrypted_url()
-            else:
-                status = End2EndConReq.get_input_data(usr_name)
+                #else:
+                # status = End2EndConReq.get_input_data(usr_name)
+            '''
             print("Processing for User : ", usr_name)
             driver = webdriver.Chrome(executable_path=config.chrome_driver_path)
             End2EndConReq.li_login(usr_name, usr_pwd)
             if status:
                 if str(usr_name).lower() == "srujan@diagonalmatrix.com":
                     pass
-                else:
-                    End2EndConReq.today_execution_contact()
+                    #else:
+                    #End2EndConReq.today_execution_contact()
                 time.sleep(5)
                 End2EndConReq.get_mutual_contact()
                 driver.quit()
                 End2EndConReq.clean_data_buffer()
             else:
                 print("Skipping user {0} bcoz input data file not found...".format(usr_name))
-                driver.quit()
+                driver.quit() 
 
         exec_log['total_sent'] = int(exec_log["1st_sent"]) + int(exec_log['2nd_sent']) + int(exec_log['3rd_sent'])
         # Get End Time
         exec_log["end_time"] = strftime("%d-%m-%Y %H:%M:%S", gmtime())
-        print("End Time = ", str(exec_log["end_time"]))
+        print("End Time = ", str(exec_log["end_time"])) '''
 
     @staticmethod
     def li_login(usr, pwd):
@@ -171,22 +172,22 @@ class End2EndConReq:
         try:
             with open(csv_file, 'r') as f:
                 try:
-                    reader = csv.reader(f, delimiter = ';')
+                    reader = csv.reader(f, delimiter=';')
                 except Exception as e:
                     reader = csv.reader(f)
                 header = next(reader)
                 for row in reader:
                     tmp_dict = {}
                     try:
-                        tmp_dict.update( {"date" : row[0]} )
-                        tmp_dict.update( {"li_url" : row[1]} )
-                        tmp_dict.update( {"var_1" : row[2]} )
-                        tmp_dict.update( {"var_2" : row[3]} )
-                        tmp_dict.update( {"var_3" : row[4]} )
-                        tmp_dict.update( {"var_4" : row[5]} )
-                        tmp_dict.update( {"var_5" : row[6]} )
-                        tmp_dict.update({"2nd_msg" : row[7]} )
-                        tmp_dict.update({"3rd_msg" : row[8]} )
+                        tmp_dict.update({"date": row[0]})
+                        tmp_dict.update({"li_url": row[1]})
+                        tmp_dict.update({"var_1": row[2]})
+                        tmp_dict.update({"var_2": row[3]})
+                        tmp_dict.update({"var_3": row[4]})
+                        tmp_dict.update({"var_4": row[5]})
+                        tmp_dict.update({"var_5": row[6]})
+                        tmp_dict.update({"2nd_msg": row[7]})
+                        tmp_dict.update({"3rd_msg": row[8]})
 
                         if len(tmp_dict["li_url"]):
                             user_data_list.append(tmp_dict)
@@ -212,7 +213,7 @@ class End2EndConReq:
             usr_set_day = str(data["date"]).split("/")[0]
             usr_set_month = str(data["date"]).split("/")[1]
             if (int(str(month)) == int(str(usr_set_month)) and
-                int(str(today)) == int(str(usr_set_day))):
+                    int(str(today)) == int(str(usr_set_day))):
                 print("User configure for today : ", data["li_url"])
                 today_exec_list.append(data)
                 user_to_exec_today += 1
@@ -235,35 +236,36 @@ class End2EndConReq:
                 if sales_user:
                     cnt["li_url"] = driver.current_url
                     continue
-                #End2EndConReq.total_results(cnt)
+                # End2EndConReq.total_results(cnt)
             except:
                 exec_log["failure_cnt"] += 1
                 print("ERROR: Invalid URL : ---------- " + cnt["li_url"])
 
                 time.sleep(5)
 
-
     @staticmethod
     def dump_data_in_xls(usr_d):
         """Dump data in XLS
         """
+        print("Entered into xls function")
         try:
             sheet_name = usr_d
-            
             wb = Workbook()
             sheet = wb.add_sheet(sheet_name)
-            sheet.write(0,0,"URL")
+            sheet.write(0, 0, "URL")
 
             for index in range(len(today_exec_list)):
                 try:
+                    print("run time record is "+today_exec_list[index]['li_url'])
                     sheet.write(index + 1, 0, today_exec_list[index]["li_url"])
                 except:
                     continue
+            print("Data started writing into EXCEL....")
+            wb.save("/home/elonmusk/Documents/linkedin_run/I_O/decrypt/Decrypted_Url.xls")
             print("Data written into EXCEL sheet successfully....")
         except Exception as err:
             print("Failed to write data in Excel Sheet for user")
 
-        wb.save("Decrypted_Url.xls")
 
 '''
     @staticmethod
@@ -469,9 +471,8 @@ class End2EndConReq:
 '''
 
 if __name__ == '__main__':
-
     # Initiate execution
     End2EndConReq.send_conn_req()
 
     # Dump info into log report
-    #logger_file.dump_log(exec_log)
+    # logger_file.dump_log(exec_log)
