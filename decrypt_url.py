@@ -230,13 +230,14 @@ class End2EndConReq:
         global exec_log, today_exec_list
         for cnt in today_exec_list:
             try:
+                time.sleep(15)
                 print("Processing URL = {0}".format(cnt["li_url"]))
                 driver.get(cnt["li_url"].replace(';', ','))
-                time.sleep(10)
+                time.sleep(5)
                 if sales_user:
-                    cnt["li_url"] = driver.current_url
-                    time.sleep(10)
+                    cnt["li_url"] = driver.current_url                    
                     continue
+                
                 # End2EndConReq.total_results(cnt)
             except:
                 exec_log["failure_cnt"] += 1
