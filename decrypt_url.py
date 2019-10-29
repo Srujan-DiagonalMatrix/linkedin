@@ -233,7 +233,6 @@ class End2EndConReq:
                 time.sleep(15)
                 print("Processing URL = {0}".format(cnt["li_url"]))
                 driver.get(cnt["li_url"].replace(';', ','))
-                time.sleep(5)
                 if sales_user:
                     cnt["li_url"] = driver.current_url                    
                     continue
