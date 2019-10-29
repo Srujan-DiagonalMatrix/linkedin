@@ -215,6 +215,7 @@ class End2EndConReq:
             if (int(str(month)) == int(str(usr_set_month)) and
                     int(str(today)) == int(str(usr_set_day))):
                 print("User configure for today : ", data["li_url"])
+                print("Total count for today : ", data.count(data["li_url"]))
                 today_exec_list.append(data)
                 user_to_exec_today += 1
             else:
