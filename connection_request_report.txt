@@ -1,0 +1,14 @@
+
+1. Start time: 11-09-2019 18:30:43
+2. End Time: 11-09-2019 18:32:16
+3. Total exe time(hrs:min:sec): <NOT IMPLEMENTED>
+4. Total contacts in input sheet (before start of job): 1
+
+<Successful>
+5. Total successful sent connections: 0
+6. Total 1st Degree (successful sent only - count): 0
+7. Total 2nd Degree (successful sent only - count): 0
+8. Total 3rd Degree (successful sent only - count): 0
+
+<Unsuccessful>
+9. all unsuccessful/already sent/others url list: 1
