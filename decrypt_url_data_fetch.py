@@ -2,10 +2,9 @@ import time
 import pyperclip
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from links import linkedin_urls
 from config import li_username, li_password,chrome_driver_path
-from config import csv_w_filepath
+from config import csv_filepath, csv_w_filepath
+import sys
 import csv
 import os
 
@@ -23,18 +22,40 @@ driver.find_element_by_name('session_password').send_keys(li_password)
 driver.find_element_by_name('session_password').send_keys(Keys.RETURN);
 time.sleep(5)
 csv_data = []
+linkedin_urls = []
 
 
 class Connect:
 
+    def __init__(self):
+        with open(csv_filepath, 'r') as f:
+            try:
+                reader = csv.reader(f, delimiter=';')
+                print(str(sys.argv[1]))
+            except Exception as e:
+                reader = csv.reader(f)
+
+            header = next(reader)
+
+            for row in reader:
+                try:
+                    linkedin_url = ','.join(row)
+                    if len(linkedin_url):
+                        print(linkedin_url)
+                        linkedin_urls.append(linkedin_url)
+                    else:
+                        print("Line is blank...")
+                except Exception as e:
+                    pass
+
     @staticmethod
     def search_results(url):
         try:
-            linkedin_url = "https://www.linkedin.com/sales/people/{}".format(url)
-            driver.get(linkedin_url)
-            time.sleep(15)
+            li_url = "https://www.linkedin.com/sales/people/{}".format(url)
+            driver.get(li_url)
+            time.sleep(20)
         except:
-            print('ERROR: Invalid URL : ---------- ' + url)
+            print('ERROR: Invalid URL : ---------- ' + li_url)
             print(driver.current_url)
             pass
 
@@ -70,12 +91,13 @@ class Connect:
 
 if __name__ == '__main__':
     try:
+        cn = Connect()
         fields = ['Contact Url', 'Mutuals Contacts']
         with open(csv_w_filepath, 'a') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
             for url in range(len(linkedin_urls)):
-                cn = Connect()
+                print(linkedin_urls)
                 cn.search_results(linkedin_urls[url])
                 li_link = cn.get_contact_link()
                 decree = cn.get_second_degree_contact()
