@@ -4,7 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from config import li_username, li_password,chrome_driver_path
 from config import csv_filepath, csv_w_filepath
-import sys
 import csv
 import os
 
@@ -28,18 +27,16 @@ linkedin_urls = []
 class Connect:
 
     def __init__(self):
-        with open(csv_filepath, 'r') as f:
+        with open(csv_filepath, 'r') as myFile:
             try:
-                reader = csv.reader(f, delimiter=';')
-                print(str(sys.argv[1]))
+                reader = csv.reader(myFile, delimiter=';', quoting=csv.QUOTE_NONE)
             except Exception as e:
-                reader = csv.reader(f)
-
+                reader = csv.reader(myFile)
             header = next(reader)
 
             for row in reader:
                 try:
-                    linkedin_url = ','.join(row)
+                    linkedin_url = row[0]
                     if len(linkedin_url):
                         print(linkedin_url)
                         linkedin_urls.append(linkedin_url)
