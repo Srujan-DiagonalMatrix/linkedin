@@ -79,6 +79,7 @@ class Connect:
         try:
             time.sleep(5)
             element = driver.find_element_by_css_selector('span[class="label-16dp block"]')
+            print(element.text)
             if element.text == '2nd':
                 time.sleep(5)
                 connection_text = driver.find_element_by_css_selector('dd[class="t-12 t-black--light t-normal"]').text
@@ -90,25 +91,25 @@ class Connect:
 
 
 if __name__ == '__main__':
+    cn = Connect()
+    for url in range(len(linkedin_urls)):
+        cn.search_results(linkedin_urls[url])
+        li_link = cn.get_contact_link()
+        degree = cn.get_second_degree_contact()
+        dict_data = {'Contact Url': li_link, 'Mutuals Contacts': degree}
+        csv_data.append(dict_data)
+    driver.quit()
+
     try:
-        cn = Connect()
         fields = ['Contact Url', 'Mutuals Contacts']
         with open(csv_w_filepath, 'a') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
-            for url in range(len(linkedin_urls)):
-                print(linkedin_urls)
-                cn.search_results(linkedin_urls[url])
-                li_link = cn.get_contact_link()
-                decree = cn.get_second_degree_contact()
-                dict_data = {'Contact Url': li_link, 'Mutuals Contacts': decree}
-                csv_data.append(dict_data)
-                for data in csv_data:
-                    try:
-                        writer.writerow(data)
-                    except Exception:
-                        data["Contact"] = data["Contact"].encode('utf-8')
-                        writer.writerow(data)
+            for data in csv_data:
+                try:
+                    writer.writerow(data)
+                except Exception:
+                    data["Contact Url"] = data["Contact Url"].encode('utf-8')
+                    writer.writerow(data)
     except IOError:
         print("I/O error")
-    driver.close()
